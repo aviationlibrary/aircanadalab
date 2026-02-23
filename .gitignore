@@ -9,6 +9,7 @@ cohort9
 context.xml
 tomcat-users.xml
 Makefile
+git-token
 
 # If you want to hide the docker files too:
 docker-compose.yml
