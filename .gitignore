@@ -6,8 +6,6 @@ Jenkinsfile-scripted
 jenkins-cohort8
 jenkinsfilecohort7
 cohort9
-context.xml
-tomcat-users.xml
 Makefile
 git-token
 
