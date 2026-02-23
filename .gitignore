@@ -8,6 +8,8 @@ jenkinsfilecohort7
 cohort9
 Makefile
 git-token
+pipeline.yml
+
 
 # If you want to hide the docker files too:
 docker-compose.yml
