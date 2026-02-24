@@ -1,0 +1,79 @@
+name: "End-to-End DevSecOps Pipeline for Air Canada Enterprise"
+
+# 1. DEVELOPER COMMIT / GITHUB REPO (Diagram Block 1 & 2)
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Allows manual "Pro" testing
+
+jobs:
+  # 2. THE SECURITY ANALYSIS ENGINE
+  security-gate:
+    name: "SAST, SCA, and SBOM Analysis"
+    runs-on: ubuntu-latest
+    
+    steps:
+      # --- GITHUB REPOSITORY / PR (Diagram Block 2) ---
+      - name: "Checkout Code"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Pro: Required for Sonar history/blame
+
+      # --- SETUP ENVIRONMENT ---
+      - name: "Set up JDK 17"
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+          cache: 'maven'
+
+      # --- SAST: SONARQUBE (Diagram Block 3 - Replacing Checkmarx) ---
+      # This is the "Pro" way to use the code you pasted
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: "SonarCloud SAST Analysis"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mvn -B verify sonar:sonar \
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY}} \
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} \
+            -Dsonar.host.url=${{ vars.SONAR_HOST_URL }} \
+            -Dsonar.qualitygate.wait=true
+
+      # # --- SCA + SBOM: SNYK (Diagram Block 4) ---
+      # - name: "Snyk SCA & SBOM Generation"
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   run: |
+      #     # Install Snyk CLI via NPM (Fastest Pro way on Ubuntu)
+      #     npm install -g snyk
+          
+      #     # Run SCA Scan (Pink Box in your diagram)
+      #     snyk test --severity-threshold=high
+          
+      #     # Generate SBOM in CycloneDX format (Pink Box in your diagram)
+      #     snyk sbom --format cyclonedx1.4+json > bom.json
+
+      # # --- ARTIFACT STORAGE (Pro Compliance) ---
+      # - name: "Upload Security Artifacts"
+      #   if: always() # Ensure we get reports even if the scan fails
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: security-reports
+      #     path: |
+      #       bom.json
+      #       target/site/jacoco/index.html
