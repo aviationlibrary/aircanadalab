@@ -49,6 +49,9 @@ jobs:
         run: |
           # Install Snyk CLI via NPM (Fastest Pro way on Ubuntu)
           npm install -g snyk
+
+          # 2. Authenticate
+          snyk auth $SNYK_TOKEN
           
           # Run SCA Scan (Pink Box in your diagram)
           snyk test --severity-threshold=high
