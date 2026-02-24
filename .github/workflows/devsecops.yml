@@ -2,10 +2,10 @@ name: "End-to-End DevSecOps Pipeline for Air Canada Enterprise"
 
 # 1. DEVELOPER COMMIT / GITHUB REPO (Diagram Block 1 & 2)
 on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
+  # push:
+  #   branches: [ "main", "master" ]
+  # pull_request:
+  #   branches: [ "main", "master" ]
   workflow_dispatch: # Allows manual "Pro" testing
 
 jobs:
