@@ -31,18 +31,6 @@ jobs:
 
       # --- SAST: SONARQUBE (Diagram Block 3 - Replacing Checkmarx) ---
       # This is the "Pro" way to use the code you pasted
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
       - name: "SonarCloud SAST Analysis"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -54,26 +42,26 @@ jobs:
             -Dsonar.host.url=${{ vars.SONAR_HOST_URL }} \
             -Dsonar.qualitygate.wait=true
 
-      # # --- SCA + SBOM: SNYK (Diagram Block 4) ---
-      # - name: "Snyk SCA & SBOM Generation"
-      #   env:
-      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      #   run: |
-      #     # Install Snyk CLI via NPM (Fastest Pro way on Ubuntu)
-      #     npm install -g snyk
+      # --- SCA + SBOM: SNYK (Diagram Block 4) ---
+      - name: "Snyk SCA & SBOM Generation"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          # Install Snyk CLI via NPM (Fastest Pro way on Ubuntu)
+          npm install -g snyk
           
-      #     # Run SCA Scan (Pink Box in your diagram)
-      #     snyk test --severity-threshold=high
+          # Run SCA Scan (Pink Box in your diagram)
+          snyk test --severity-threshold=high
           
-      #     # Generate SBOM in CycloneDX format (Pink Box in your diagram)
-      #     snyk sbom --format cyclonedx1.4+json > bom.json
+          # Generate SBOM in CycloneDX format (Pink Box in your diagram)
+          snyk sbom --format cyclonedx1.4+json > bom.json
 
-      # # --- ARTIFACT STORAGE (Pro Compliance) ---
-      # - name: "Upload Security Artifacts"
-      #   if: always() # Ensure we get reports even if the scan fails
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: security-reports
-      #     path: |
-      #       bom.json
-      #       target/site/jacoco/index.html
+      # --- ARTIFACT STORAGE (Pro Compliance) ---
+      - name: "Upload Security Artifacts"
+        if: always() # Ensure we get reports even if the scan fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            bom.json
+            target/site/jacoco/index.html
