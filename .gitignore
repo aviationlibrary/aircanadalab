@@ -9,6 +9,7 @@ cohort9
 Makefile
 git-token
 pipeline.yml
+Dockerfile2
 
 
 # If you want to hide the docker files too:
